@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
 
   <title>でか文字</title>
 
+  <!-- ========================================
+       iPhone / iPad ホーム画面
+  ========================================= -->
+
+  <!-- ホーム画面用アイコン -->
+  <link rel="apple-touch-icon" href="icon_.png">
+
+  <!-- ホーム画面からWebアプリとして起動 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <!-- ステータスバー -->
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <!-- ホーム画面でのアプリ名 -->
+  <meta
+    name="apple-mobile-web-app-title"
+    content="でか文字"
+  >
+
+
   <style>
+
+    /* ========================================
+       基本
+    ========================================= */
+
     * {
       box-sizing: border-box;
     }
@@ -14,20 +47,30 @@
     html,
     body {
       margin: 0;
+
       width: 100%;
       height: 100%;
+
+      background: #ffffff;
     }
+
+
+    /* ========================================
+       画面全体
+    ========================================= */
 
     body {
       width: 100vw;
       height: 100dvh;
 
       display: flex;
+
       align-items: center;
       justify-content: center;
 
       padding: 24px;
 
+      /* スクロールさせない */
       overflow: hidden;
 
       background: #ffffff;
@@ -42,74 +85,155 @@
         sans-serif;
     }
 
+
+    /* ========================================
+       メッセージ
+    ========================================= */
+
     #message {
       width: 100%;
 
       text-align: center;
 
+      /* 基本48px */
       font-size: 48px;
+
       font-weight: 700;
+
       line-height: 1.35;
 
+      /* message.txtの改行を維持 */
       white-space: pre-wrap;
+
+      /* 長い文字列があっても折り返す */
       overflow-wrap: break-word;
+
       word-break: normal;
     }
+
   </style>
 </head>
 
+
 <body>
 
-  <div id="message">読み込み中...</div>
+  <div id="message">
+    読み込み中...
+  </div>
+
 
   <script>
-    const messageElement = document.getElementById("message");
+
+    const messageElement =
+      document.getElementById("message");
+
+
+    /* ========================================
+       文字サイズ自動調整
+    ========================================= */
 
     function fitText() {
 
+      // 基本サイズ
       let size = 48;
+
+      // これより小さくしない
       const minSize = 32;
 
-      messageElement.style.fontSize = size + "px";
+      messageElement.style.fontSize =
+        size + "px";
+
+
+      /*
+        画面からはみ出している間、
+        1pxずつ文字を小さくする
+      */
 
       while (
         (
-          messageElement.scrollHeight > window.innerHeight - 48 ||
-          messageElement.scrollWidth > window.innerWidth - 48
+          messageElement.scrollHeight >
+            window.innerHeight - 48 ||
+
+          messageElement.scrollWidth >
+            window.innerWidth - 48
         )
         &&
         size > minSize
       ) {
+
         size--;
-        messageElement.style.fontSize = size + "px";
+
+        messageElement.style.fontSize =
+          size + "px";
       }
     }
 
-    fetch("message.txt?t=" + Date.now())
+
+    /* ========================================
+       message.txtを読み込む
+    ========================================= */
+
+    fetch(
+      "message.txt?t=" + Date.now()
+    )
+
       .then(response => {
 
         if (!response.ok) {
-          throw new Error("読み込みエラー");
+
+          throw new Error(
+            "message.txtを読み込めませんでした"
+          );
+
         }
 
         return response.text();
+
       })
+
+
       .then(text => {
 
-        messageElement.textContent = text.trim();
+        /*
+          message.txtの内容を
+          そのまま表示
+        */
+
+        messageElement.textContent =
+          text.trim();
+
+
+        /*
+          1画面に収まるように
+          サイズ調整
+        */
 
         fitText();
+
       })
+
+
       .catch(error => {
 
         messageElement.textContent =
           "メッセージを読み込めませんでした";
 
         console.error(error);
+
       });
 
-    window.addEventListener("resize", fitText);
+
+    /* ========================================
+       画面サイズが変わった場合
+    ========================================= */
+
+    window.addEventListener(
+      "resize",
+      fitText
+    );
+
   </script>
 
 </body>
+
 </html>
