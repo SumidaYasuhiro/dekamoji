@@ -15,17 +15,20 @@
     body {
       margin: 0;
       width: 100%;
-      min-height: 100%;
+      height: 100%;
     }
 
     body {
-      min-height: 100vh;
+      width: 100vw;
+      height: 100dvh;
 
       display: flex;
       align-items: center;
       justify-content: center;
 
       padding: 24px;
+
+      overflow: hidden;
 
       background: #ffffff;
       color: #000000;
@@ -41,21 +44,16 @@
 
     #message {
       width: 100%;
-      max-width: 1000px;
 
       text-align: center;
 
-      font-size: clamp(48px, 10vw, 140px);
+      font-size: 48px;
       font-weight: 700;
-      line-height: 1.4;
+      line-height: 1.35;
 
       white-space: pre-wrap;
       overflow-wrap: break-word;
-    }
-
-    #error {
-      font-size: 24px;
-      text-align: center;
+      word-break: normal;
     }
   </style>
 </head>
@@ -67,8 +65,29 @@
   <script>
     const messageElement = document.getElementById("message");
 
+    function fitText() {
+
+      let size = 48;
+      const minSize = 32;
+
+      messageElement.style.fontSize = size + "px";
+
+      while (
+        (
+          messageElement.scrollHeight > window.innerHeight - 48 ||
+          messageElement.scrollWidth > window.innerWidth - 48
+        )
+        &&
+        size > minSize
+      ) {
+        size--;
+        messageElement.style.fontSize = size + "px";
+      }
+    }
+
     fetch("message.txt?t=" + Date.now())
       .then(response => {
+
         if (!response.ok) {
           throw new Error("読み込みエラー");
         }
@@ -76,12 +95,20 @@
         return response.text();
       })
       .then(text => {
+
         messageElement.textContent = text.trim();
+
+        fitText();
       })
       .catch(error => {
-        messageElement.textContent = "メッセージを読み込めませんでした";
+
+        messageElement.textContent =
+          "メッセージを読み込めませんでした";
+
         console.error(error);
       });
+
+    window.addEventListener("resize", fitText);
   </script>
 
 </body>
