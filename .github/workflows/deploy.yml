@@ -22,7 +22,22 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
+      
+          for i in 1 2 3 4 5; do
+            if ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts; then
+              echo "ssh-keyscan succeeded."
+              break
+            fi
+      
+            echo "ssh-keyscan failed. retry $i/5..."
+            
+            if [ "$i" -eq 5 ]; then
+              echo "ssh-keyscan failed after 5 attempts."
+              exit 1
+            fi
+      
+            sleep 5
+          done
 
       - name: Deploy to XServer
         env:
